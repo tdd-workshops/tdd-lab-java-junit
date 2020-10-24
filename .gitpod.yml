@@ -1,0 +1,4 @@
+tasks:
+  - name: Test
+    init: ./gradlew build
+    command: ./gradlew test
