@@ -1,7 +1,5 @@
 # Java - Bootstrapping JUnit
 
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/tdd-workshops/tdd-lab-java-junit)
-
 Here's instructions on bootstrapping a Java project with Gradle and JUnit4
 
 *__Note__: This guide assumes you have Java installed.*
