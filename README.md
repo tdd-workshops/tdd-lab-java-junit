@@ -1,122 +1,132 @@
 # Java - Bootstrapping JUnit
 
-Here's instructions on bootstrapping a Java project with Gradle and JUnit4
+This project is ready to go in a [dev container](https://containers.dev/), so you
+don't need Java or Gradle installed on your machine at all — the
+[ghcr.io/tdd-workshops/devcontainer-java](https://ghcr.io/tdd-workshops/devcontainer-java)
+image provides everything needed.
 
-*__Note__: This guide assumes you have Java installed.*
+## Getting started
 
-1. Install gradle:
+Pick whichever option is easiest for you:
 
-    with __Homebrew__:
-    ```bash
-    $ brew install gradle
-    ```
+1. **GitHub Codespaces** — on GitHub, click **Code → Create codespace on main**.
 
-    Manually:
-    ```bash
-    $ wget https://services.gradle.org/distributions/gradle-5.4.1-bin.zip
-    $ sudo mkdir /opt/gradle
-    $ sudo unzip -d /opt/gradle gradle-5.4.1-bin.zip
-    $ export PATH=$PATH:/opt/gradle/gradle-5.4.1/bin
-    ```
+2. **VS Code** — install the [Dev Containers] extension, open this folder and
+   run **Dev Containers: Reopen in Container**.
 
-    Run the following your installation went through correctly
-    ```bash
-    $ gradle -v
-    ```
+3. **Other dev container compatible tools** (Gitpod, Cursor, etc.) — open this
+   repository; they pick up `.devcontainer/devcontainer.json` automatically.
 
-2. Create a new project folder for the code:
-    ```bash
-    $ mkdir <project-name>
-    $ cd <project-name>
-    ```
+The first time the container starts, `make install-dependencies` runs
+automatically (via `postCreateCommand`). It uses the Gradle wrapper to download
+the Gradle version pinned in `gradle/wrapper/gradle-wrapper.properties`, fetches
+the dependencies declared in `build.gradle`, and builds and tests the project
+once, so the caches are warm before you start pairing. VS Code picks up the
+wrapper too, so IntelliSense and the Test Explorer use the same build.
 
-3. Initialise the project as a Gradle project.
+## Running the tests
 
-    This will create the necessary files and folders, along with a gradle wrapper
-    ```bash
-    $ gradle init
-    ```
-    Run the following to ensure everything is configured as expected:
-    ```bash
-    $ ./gradlew -v
-    ```
-    You should see the same result as above
+From a terminal inside the dev container:
 
-4. Create the directories corresponding to the standard Java directory structure:
-    ```bash
-    $ mkdir src && cd src
-    $ mkdir main
-    $ mkdir test
-    $ mkdir main/java
-    $ mkdir test/java
-    ```
-    Your project structure should now look like:
-    ```
-   .
-   ├── build.gradle
-   ├── gradle
-   │   └── wrapper
-   │       ├── gradle-wrapper.jar
-   │       └── gradle-wrapper.properties
-   ├── gradlew
-   ├── gradlew.bat
-   ├── settings.gradle
-   └── src
-       ├── main
-       │   └── java
-       └── test
-           └── java
-   ```
-5. Create a class under `src/main/java`. For example,
+```shell
+./gradlew test
+```
 
-    *HelloWorld.java*
-    ```java
-    public class HelloWorld {
-        public String say() {
-            return "Hello, World!";
-        }
+or:
+
+```shell
+make test
+```
+
+You should see something like this:
+
+```shell
+> Task :compileJava UP-TO-DATE
+> Task :processResources NO-SOURCE
+> Task :classes UP-TO-DATE
+> Task :compileTestJava UP-TO-DATE
+> Task :processTestResources NO-SOURCE
+> Task :testClasses UP-TO-DATE
+> Task :test UP-TO-DATE
+
+BUILD SUCCESSFUL in 948ms
+3 actionable tasks: 3 up-to-date
+```
+
+Run `make help` to see all available targets.
+
+## Project layout
+
+- `src/main/java/HelloWorld.java` — the code under test:
+
+  ```java
+  public class HelloWorld {
+    public String say() {
+        return "Hello, World!";
     }
-    ```
-6. Create a corresponding test class under `src/main/test`.
+  }
+  ```
 
-    *HelloWorldTest.java*
-    ```java
-    import org.junit.Test;
-    import org.junit.Assert;
+- `src/test/java/HelloWorldTest.java` — the test suite:
 
-    public class HelloWorldTest {
-        @Test
-        public void shouldSayHelloWorld() {
-            HelloWorld helloWorld = new HelloWorld();
+  ```java
+  import org.junit.Test;
+  import org.junit.Assert;
 
-            Assert.assertEquals("Hello, World!", helloWorld.say());
-        }
+  public class HelloWorldTest {
+      @Test
+      public void shouldSayHelloWorld() {
+          HelloWorld helloWorld = new HelloWorld();
 
-    }
-    ```
-    This does not compile just yet. To make it compile, you need to add JUnit as a dependency to your project.
+          Assert.assertEquals("Hello, World!", helloWorld.say());
+      }
+  }
+  ```
 
-7. Add JUnit to the project. Add the following content in your `build.gradle` file:
+- `build.gradle` — the `java` plugin, the Maven Central repository and the JUnit
+  dependency
+- `settings.gradle` — names the project
+- `gradlew`, `gradlew.bat` and `gradle/wrapper/` — the Gradle wrapper, which pins
+  the exact Gradle version every attendee gets
+- `Makefile` — common tasks (`make help`)
+- `.devcontainer/devcontainer.json` — dev container configuration
 
-    ```groovy
-    apply plugin: 'java'
+## About JUnit
 
-    repositories {
-        mavenCentral()
-    }
+JUnit is the de-facto standard unit testing framework for Java: a test is an
+ordinary method annotated with `@Test`, and expectations are expressed as calls
+to the static methods on `Assert`:
 
-    dependencies {
-        testImplementation 'junit:junit:4.12'
-    }
-    ```
-8. Run the build as follows:
-    ```bash
-    $ ./gradlew build
-    ```
-    You should see:
-    ```bash
-    BUILD SUCCESSFUL in 0s
-    4 actionable tasks: 4 up-to-date
-    ```
+```java
+Assert.assertEquals("Hello, World!", helloWorld.say());
+```
 
-__You are all set now with your Java project__
+Gradle only tells you which test failed, so when an assertion breaks the useful
+detail is one click away in the HTML report it writes under
+`build/reports/tests/test/index.html`. For example, change `say()` to return
+`"Hello, everyone!"` and `./gradlew test` reports:
+
+```shell
+> Task :test FAILED
+
+HelloWorldTest > shouldSayHelloWorld FAILED
+    java.lang.AssertionError at HelloWorldTest.java:9
+
+1 test completed, 1 failed
+
+BUILD FAILED in 2s
+```
+
+while the report shows the expected and actual values side by side.
+
+## About dev containers
+
+Dev containers standardise a project's development environment in a
+`.devcontainer/devcontainer.json` file at the root of the repository. Any tool
+that understands the [dev container spec](https://containers.dev/) — VS Code,
+GitHub Codespaces, Gitpod, and others — will build or reuse the same container
+image, so every participant in a workshop gets an identical setup. The old
+Gitpod-specific task configuration has been replaced by this single, portable
+definition, with the Gradle wrapper pinning the build tool version.
+
+[Dev Containers]: https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers
