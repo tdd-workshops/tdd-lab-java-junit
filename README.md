@@ -70,51 +70,61 @@ Run `make help` to see all available targets.
 - `src/test/java/HelloWorldTest.java` — the test suite:
 
   ```java
-  import org.junit.Test;
-  import org.junit.Assert;
+  import org.junit.jupiter.api.Test;
+
+  import static org.junit.jupiter.api.Assertions.assertEquals;
 
   public class HelloWorldTest {
       @Test
-      public void shouldSayHelloWorld() {
+      void shouldSayHelloWorld() {
           HelloWorld helloWorld = new HelloWorld();
 
-          Assert.assertEquals("Hello, World!", helloWorld.say());
+          assertEquals("Hello, World!", helloWorld.say());
       }
   }
   ```
 
-- `build.gradle` — the `java` plugin, the Maven Central repository and the JUnit
-  dependency
+- `build.gradle` — the `java` plugin, the Maven Central repository, the JUnit
+  Jupiter dependency and the `useJUnitPlatform()` switch that tells Gradle to run
+  tests with the JUnit Platform
 - `settings.gradle` — names the project
 - `gradlew`, `gradlew.bat` and `gradle/wrapper/` — the Gradle wrapper, which pins
-  the exact Gradle version every attendee gets
+  the exact Gradle version every attendee gets (the image ships Gradle too, but
+  the wrapper keeps the build reproducible wherever it is run)
 - `Makefile` — common tasks (`make help`)
 - `.devcontainer/devcontainer.json` — dev container configuration
 
 ## About JUnit
 
-JUnit is the de-facto standard unit testing framework for Java: a test is an
-ordinary method annotated with `@Test`, and expectations are expressed as calls
-to the static methods on `Assert`:
+JUnit is the de-facto standard unit testing framework for Java. This project uses
+JUnit Jupiter, the current programming model for writing tests, which the JUnit
+Platform runs. A test is an ordinary method annotated with `@Test`, and an
+expectation is a call to a static assertion method:
 
 ```java
-Assert.assertEquals("Hello, World!", helloWorld.say());
+assertEquals("Hello, World!", helloWorld.say());
 ```
 
-Gradle only tells you which test failed, so when an assertion breaks the useful
-detail is one click away in the HTML report it writes under
-`build/reports/tests/test/index.html`. For example, change `say()` to return
-`"Hello, everyone!"` and `./gradlew test` reports:
+Compared with the old JUnit 4 style, the annotations and assertions come from
+`org.junit.jupiter.api` (there is no `org.junit.Assert` any more), neither the
+test class nor its methods have to be `public`, and failures are reported as
+`org.opentest4j.AssertionFailedError`, which carries the expected and actual
+values rather than just a message.
+
+Gradle only names the test that broke, so the useful detail is one click away in
+the HTML report it writes under `build/reports/tests/test/index.html`. For
+example, change `say()` to return `"Hello, everyone!"` and `./gradlew test`
+reports:
 
 ```shell
 > Task :test FAILED
 
-HelloWorldTest > shouldSayHelloWorld FAILED
-    java.lang.AssertionError at HelloWorldTest.java:9
+HelloWorldTest > shouldSayHelloWorld() FAILED
+    org.opentest4j.AssertionFailedError at HelloWorldTest.java:10
 
 1 test completed, 1 failed
 
-BUILD FAILED in 2s
+BUILD FAILED in 1s
 ```
 
 while the report shows the expected and actual values side by side.
