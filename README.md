@@ -17,12 +17,12 @@ Pick whichever option is easiest for you:
 3. **Other dev container compatible tools** (Gitpod, Cursor, etc.) — open this
    repository; they pick up `.devcontainer/devcontainer.json` automatically.
 
-The first time the container starts, `make install-dependencies` runs
-automatically (via `postCreateCommand`). It uses the Gradle wrapper to download
-the Gradle version pinned in `gradle/wrapper/gradle-wrapper.properties`, fetches
-the dependencies declared in `build.gradle`, and builds and tests the project
-once, so the caches are warm before you start pairing. VS Code picks up the
-wrapper too, so IntelliSense and the Test Explorer use the same build.
+The first time the container starts, `./gradlew build` runs automatically (via
+`postCreateCommand`). The Gradle wrapper downloads the Gradle version pinned in
+`gradle/wrapper/gradle-wrapper.properties`, fetches the dependencies declared in
+`build.gradle`, and builds and tests the project once, so the caches are warm
+before you start pairing. VS Code picks up the wrapper too, so IntelliSense and
+the Test Explorer use the same build.
 
 ## Running the tests
 
@@ -30,12 +30,6 @@ From a terminal inside the dev container:
 
 ```shell
 ./gradlew test
-```
-
-or:
-
-```shell
-make test
 ```
 
 You should see something like this:
@@ -53,7 +47,7 @@ BUILD SUCCESSFUL in 948ms
 3 actionable tasks: 3 up-to-date
 ```
 
-Run `make help` to see all available targets.
+Run `./gradlew tasks` to list every task the build offers.
 
 ## Project layout
 
@@ -91,7 +85,6 @@ Run `make help` to see all available targets.
 - `gradlew`, `gradlew.bat` and `gradle/wrapper/` — the Gradle wrapper, which pins
   the exact Gradle version every attendee gets (the image ships Gradle too, but
   the wrapper keeps the build reproducible wherever it is run)
-- `Makefile` — common tasks (`make help`)
 - `.devcontainer/devcontainer.json` — dev container configuration
 
 ## About JUnit
