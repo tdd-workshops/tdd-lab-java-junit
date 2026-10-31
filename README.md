@@ -43,6 +43,8 @@ test report to `build/reports/tests/test/index.html`.
 - `src/main/java/com/gildedrose/GildedRose.java` — the legacy code to refactor
 - `src/main/java/com/gildedrose/Item.java` — the item model, which must not change
 - `src/test/java/com/gildedrose/GildedRoseTest.java` — the starting JUnit test
+- `src/test/java/com/gildedrose/GildedRoseCharacterisationTest.java` — the 30-day golden-master test
+- `texttests/ThirtyDays/stdout.gr` — the expected characterisation test output
 - `GildedRoseRequirements.md` — the kata requirements
 - `build.gradle` — the Java plugin and JUnit Jupiter dependencies
 - `settings.gradle` — names the project
